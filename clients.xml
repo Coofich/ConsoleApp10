@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Clients>
+	<Client>
+		<Id>1</Id>
+		<Surname>Surname1</Surname>
+	</Client>
+</Clients>

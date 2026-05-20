@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TaskB>
+  <Month Month="5">
+    <Category Category="Name1" MaxCost="600.0">
+      <TopClient Surname="Surname1" />
+    </Category>
+  </Month>
+</TaskB>

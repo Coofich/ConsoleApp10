@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using Xunit;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -99,7 +100,7 @@ namespace Salon_xUnit
         }
     }
 }
- 
+ /
 using System;
 using Xunit;
 using System.Collections.Generic;
@@ -254,4 +255,4 @@ select new
    * *Приклад:*dailyGroup.Min() — найменша кількість проданого препарату за одну транзакцію в цей день.
  * **Aggregate()**: Дозволяє застосувати власну логіку для об'єднання елементів (наприклад, перемножити всі числа замість додавання, або з'єднати рядки).
    * *Приклад:*patientGroup.Aggregate((x, y) => x + y) — це ручний аналог методу Sum().
- 
+ */

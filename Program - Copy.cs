@@ -287,4 +287,97 @@ namespace DiagnosticCenterTests
         }
     }
 }
+public static XElement Task1_PromoReport(IEnumerable<XElement> datas, IEnumerable<XElement> ofises, IEnumerable<XElement> avtos, string targetClass, int minRentals)
+{
+    // Крок 1. Збираємо плоску таблицю даних, фільтруємо за класом і рахуємо вартість
+    var prepData = from d in datas
+                   join a in avtos on (int)d.Element("A_id") equals (int)a.Element("A_id")
+                   where (string)a.Element("Class") == targetClass
+                   join o in ofises on (int)a.Element("O_id") equals (int)o.Element("O_id")
+                   
+                   let days = (int)d.Element("Days")
+                   let price = days * (int)a.Element("BasePrice")
+                   let paid = days > 7 ? price * 0.85 : price
+                   
+                   select new
+                   {
+                       OfficeName = (string)o.Element("Name"),
+                       City = (string)o.Element("City"),
+                       Paid = paid
+                   };
+
+    // Крок 2. Групуємо, застосовуємо умови (minRentals) та формуємо XML
+    return new XElement("PromoReport",
+        new XAttribute("TargetClass", targetClass),
+        from p in prepData
+        group p by new { p.OfficeName, p.City } into g
+        
+        let rentalsCount = g.Count()
+        let totalRevenue = g.Sum(x => x.Paid)
+        
+        where rentalsCount >= minRentals
+        orderby totalRevenue descending
+        
+        select new XElement("Office",
+            new XAttribute("Name", g.Key.OfficeName),
+            new XAttribute("City", g.Key.City),
+            new XAttribute("TotalRentals", rentalsCount),
+            new XAttribute("Revenue", totalRevenue)
+        )
+    );
+}
+
+public static XElement Task2_ClientPreferences(IEnumerable<XElement> datas, IEnumerable<XElement> clients, IEnumerable<XElement> avtos)
+{
+    // Крок 1. Збираємо загальну таблицю зі знижками
+    var prepData = from d in datas
+                   join c in clients on (int)d.Element("C_id") equals (int)c.Element("C_id")
+                   join a in avtos on (int)d.Element("A_id") equals (int)a.Element("A_id")
+                   
+                   let days = (int)d.Element("Days")
+                   let price = days * (int)a.Element("BasePrice")
+                   let paid = days > 7 ? price * 0.85 : price
+                   
+                   select new
+                   {
+                       Surname = (string)c.Element("Sur"),
+                       Marka = (string)a.Element("Marka"),
+                       Paid = paid
+                   };
+
+    // Крок 2. Формуємо багаторівневий XML
+    return new XElement("ClientPreferences",
+        from p in prepData
+        group p by p.Surname into clientGroup
+        
+        let totalSpent = clientGroup.Sum(x => x.Paid)
+        orderby totalSpent descending
+        
+        // Внутрішня статистика марок для КОЖНОГО клієнта
+        let carsStats = from cg in clientGroup
+                        group cg by cg.Marka into markaGroup
+                        select new 
+                        { 
+                            Marka = markaGroup.Key, 
+                            RentCount = markaGroup.Count() 
+                        }
+        
+        // Шукаємо максимальну кількість оренд серед марок цього клієнта
+        let maxRentals = carsStats.Max(x => x.RentCount)
+        
+        select new XElement("Client",
+            new XAttribute("Surname", clientGroup.Key),
+            new XAttribute("TotalSpent", totalSpent),
+            
+            new XElement("FavoriteCars",
+                from cs in carsStats
+                where cs.RentCount == maxRentals
+                select new XElement("Car",
+                    new XAttribute("Marka", cs.Marka),
+                    new XAttribute("RentCount", cs.RentCount)
+                )
+            )
+        )
+    );
+}
 */
